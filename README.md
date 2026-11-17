@@ -43,7 +43,7 @@ The UI offers two rules (select "Luật", saved in the settings, applies at "Vá
 | `greedy` | 1 ply: best attack + defence square score; wins at once, blocks fours |
 | `search` | Main bot (below) |
 | `level-1` Dễ | `greedy` with randomness |
-| `level-2` Vừa | `search`, depth 3 + VCF, a little randomness |
+| `level-2` Vừa | `search`, depth 2 + short VCF (4 plies), width 6 – no randomness (weaker by seeing less, never by choosing worse moves on purpose) |
 | `level-3` Khó | `search`, ~1.5 s at most, node budget 300k |
 
 ### Threat shapes (`bots/lib/position.js`)
@@ -90,6 +90,8 @@ Speed (cloud box): ~100 nodes/ms; depth 6 on 3 positions ≈ 0.9 s. In a game th
 | search vs greedy | 90% (10 games) |
 | search:evalOpp=1.3 / 0.8 vs search | 56% / 58% (24 games – noise) |
 | search:width=14,rootWidth=20 vs search | 37.5% (24 games) |
+| Vừa (depth 2, qPly 4) vs Dễ | 91.7% (12 games) |
+| Khó vs Vừa (depth 2, qPly 4) | 70.8% (12 games) |
 
 X wins 75–85% of the bot-vs-bot games (first-move advantage) – use many games and both colours (the arena plays each
 seed twice with colours swapped, after a short random opening).

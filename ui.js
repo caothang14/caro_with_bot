@@ -58,6 +58,9 @@
   let state = newState();
   let players = { 1: 'human', 2: 'human' };   // 'human' or a bot spec
   let thinkId = 0, botThinking = false, resigned = null, confirmResign = false;
+  // "Đi lại" (against mis-taps on the small board): positions + clock times after every move, and whether the one
+  // allowed take-back is available (it is re-armed by the next human move)
+  let history = [state], clockSnaps = [], canUndo = false;
   let clock = null;
   const ClockSide = { 1: 'r', 2: 'b' };   // ChessClock sides
 
@@ -152,6 +155,7 @@
     $('moveCount').textContent = state.moves.length;
     $('lastMove').textContent = last != null ? ` · nước cuối: ${NAME[state.board[last]]} ${C.squareName(last, n)}` : '';
     $('resign').disabled = !!res || !humanSides().length || state.moves.length < 1;
+    $('undo').disabled = !undoAllowed();
     $('confirmBar').hidden = !confirmResign;
     $('modeComputer').hidden = settings.mode !== 'computer';
     // the rule of the game on the board (a changed setting applies at "Ván mới")
@@ -174,6 +178,40 @@
     confirmResign = false;
     // the clock starts after the first move; the mover gets the increment
     if (state.result) clock.stop(); else clock.press(ClockSide[mover]);
+    history.push(state);
+    clockSnaps.push(clock.snapshot());
+    if (!isBot(mover)) canUndo = true;
+    render();
+    maybeBotMove();
+  }
+
+  // ---------- Take back ("Đi lại") ----------
+  /** One take-back per human move; also after the game ended (five / resignation – not after a timeout). */
+  function undoAllowed() {
+    if (!canUndo || !humanSides().length) return false;
+    const res = result();
+    if (res && (res.reason === 'timeout' || res.reason === 'bot-error')) return false;
+    return history.length > 1 || (res && res.reason === 'resign');
+  }
+
+  function undo() {
+    if (!undoAllowed()) return;
+    cancelBot();
+    confirmResign = false;
+    canUndo = false;
+    if (resigned && resigned.reason === 'resign') {
+      // just resigned: take the resignation back, the game goes on from the same position
+      resigned = null;
+    } else {
+      // vs computer: take back the human's last move and the bot's reply (if any); two players: the last move
+      history.pop(); clockSnaps.pop();
+      while (history.length > 1 && isBot(history[history.length - 1].turn)) { history.pop(); clockSnaps.pop(); }
+      state = history[history.length - 1];
+      resigned = null;
+    }
+    // clock: the times after the last remaining move; it only runs once a move has been played
+    const snap = clockSnaps.length ? clockSnaps[clockSnaps.length - 1] : { r: clock.initialMs, b: clock.initialMs };
+    clock.restore(snap, state.moves.length ? ClockSide[state.turn] : null);
     render();
     maybeBotMove();
   }
@@ -224,6 +262,7 @@
   function newGame() {
     cancelBot();
     state = newState();
+    history = [state]; clockSnaps = []; canUndo = false;
     resigned = null;
     $('ruleNote').hidden = true;
     confirmResign = false;
@@ -267,6 +306,7 @@
     clock.stop();
     render();
   });
+  $('undo').addEventListener('click', undo);
   $('pause').addEventListener('click', () => {
     if (clock.paused) clock.resume(); else clock.pause();
     render();
@@ -290,7 +330,8 @@
   window.CaroUI = {
     current: () => state,
     play: (i) => onSquare(i),
-    load: (s) => { cancelBot(); state = C.cloneState(s); resigned = null; buildBoard(); render(); maybeBotMove(); },
+    load: (s) => { cancelBot(); state = C.cloneState(s); history = [state]; clockSnaps = []; canUndo = false; resigned = null; buildBoard(); render(); maybeBotMove(); },
+    undo: () => undo(),
     players: () => ({ ...players }),
   };
 

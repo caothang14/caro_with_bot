@@ -18,7 +18,7 @@ npm run bump          # new ?v= version tag in index.html – before every deplo
 - 5 or more stones in a row (horizontal, vertical, diagonal) win (`overline: true`) …
 - … unless both ends of the line are blocked by the opponent's stones (**chặn 2 đầu**, `blockedBothEnds: true`).
   The board edge does not count as a block (`edgeBlocks: false`).
-- Full board without a winner = draw. No undo (same choice as the cotuong-up project).
+- Full board without a winner = draw.
 
 All three rule switches can be changed in `DEFAULT_RULES` / `createGame({ rules })`; the bots read them from the state.
 The UI offers two rules (select "Luật", saved in the settings, applies at "Ván mới"): **Chặn 2 đầu** (default) and
@@ -33,6 +33,10 @@ The UI offers two rules (select "Luật", saved in the settings, applies at "Vá
   remaining time + 0.8 × increment, capped at 2 s (and at the bot's own maxTimeMs).
 - **Hai người**: two humans on one device.
 - "Chịu thua" asks for confirmation. Settings are kept in `localStorage`.
+- **"Đi lại"** (against mis-taps on the small board): ONE take-back, re-armed by the next human move. Vs computer it
+  takes back your last move and the bot's reply; two players: the last move. Also after the game ended (a five, or a
+  resignation – then the game goes on); not after a timeout. The clock goes back to the times before that move.
+- The buttons (Ván mới / Đi lại / Tạm dừng / Chịu thua) are right under the board, so they are reachable on a phone.
 - Bots think in a Web Worker (`bots/worker.js`, built from the source of the bot files so it also works on `file://`).
 
 ## Bots

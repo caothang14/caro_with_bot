@@ -25,7 +25,7 @@ body {
   align-items: flex-start;
   flex-wrap: wrap;
 }
-.board-wrap { flex: 0 1 auto; }
+.board-wrap { flex: 0 1 auto; --size: min(94vw, 640px, calc(100vh - 220px)); }
 .clocks { display: flex; gap: 10px; margin-bottom: 10px; }
 .clock {
   flex: 1; display: flex; justify-content: space-between; align-items: center;
@@ -61,7 +61,6 @@ body {
 /* board: --n cells per side, square, fits the screen */
 .board {
   --n: 21;
-  --size: min(94vw, 640px, calc(100vh - 160px));
   width: var(--size);
   height: var(--size);
   display: grid;
@@ -117,8 +116,10 @@ h1 { margin: 0 0 6px; font-size: 24px; color: var(--accent); }
 .field select { display: block; width: 100%; margin-top: 4px; padding: 8px; font-size: 15px; border-radius: 6px; border: 1px solid #c9b896; background: #fff; }
 .note { font-size: 13px; color: var(--muted); margin: 0 0 10px; }
 .buttons { display: flex; gap: 8px; margin: 10px 0; }
+.actions { width: var(--size); }
+.actions .buttons { margin: 10px 0 0; }
 .buttons button {
-  flex: 1; padding: 11px 8px; font-size: 15px; font-weight: 600; border: none; border-radius: 8px;
+  flex: 1; padding: 11px 6px; font-size: 15px; font-weight: 600; border: none; border-radius: 8px; white-space: nowrap;
   background: var(--accent); color: #fff; cursor: pointer;
 }
 .buttons button.secondary { background: #e8dcc4; color: var(--accent); }
@@ -132,5 +133,7 @@ h1 { margin: 0 0 6px; font-size: 24px; color: var(--accent); }
 @media (max-width: 700px) {
   .app { padding: 8px; gap: 12px; }
   .panel { flex-basis: 100%; }
-  .board { --size: min(96vw, calc(100vh - 150px)); }
+  .buttons { gap: 6px; }
+  .buttons button { font-size: 14px; padding: 11px 4px; }
+  .board-wrap { --size: min(96vw, calc(100vh - 200px)); }
 }

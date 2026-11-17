@@ -36,9 +36,16 @@
   // ---------- Settings ----------
   const SETTINGS_KEY = 'caro.settings';
   // defaults: vs computer, the human plays X (moves first), 5 min + 3 s per move
-  const settings = { mode: 'computer', humanSide: '1', level: 'level-2', tc: '5+3' };
+  // rule: 'block2' = chặn 2 đầu (a five blocked at both ends by the opponent does not win), 'free' = any five wins
+  const settings = { mode: 'computer', humanSide: '1', level: 'level-2', tc: '5+3', rule: 'block2' };
   try { Object.assign(settings, JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}); } catch (e) { /* no storage */ }
   const saveSettings = () => { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) { /* ignore */ } };
+  if (!['block2', 'free'].includes(settings.rule)) settings.rule = 'block2';
+  const RULE_TEXT = {
+    block2: 'Luật chặn 2 đầu: 5 quân liên tiếp (ngang, dọc, chéo) là thắng, trừ khi bị quân đối phương chặn cả hai đầu.',
+    free: 'Luật tự do: 5 quân liên tiếp (ngang, dọc, chéo) trở lên là thắng, kể cả khi bị chặn hai đầu.',
+  };
+  const newState = () => C.createGame({ rules: { blockedBothEnds: settings.rule === 'block2' } });
   const levels = Bots.levels();
   if (!levels.some((l) => l.id === settings.level)) settings.level = levels.length > 1 ? levels[1].id : (levels[0] || {}).id;
   for (const l of levels) {
@@ -48,7 +55,7 @@
   }
 
   // ---------- Game state ----------
-  let state = C.createGame();
+  let state = newState();
   let players = { 1: 'human', 2: 'human' };   // 'human' or a bot spec
   let thinkId = 0, botThinking = false, resigned = null, confirmResign = false;
   let clock = null;
@@ -147,6 +154,8 @@
     $('resign').disabled = !!res || !humanSides().length || state.moves.length < 1;
     $('confirmBar').hidden = !confirmResign;
     $('modeComputer').hidden = settings.mode !== 'computer';
+    // the rule of the game on the board (a changed setting applies at "Ván mới")
+    $('ruleText').textContent = RULE_TEXT[state.rules.blockedBothEnds ? 'block2' : 'free'];
     for (const b of document.querySelectorAll('.tab')) b.classList.toggle('active', b.dataset.mode === settings.mode);
     renderClocks();
     const lv = Bots.get(settings.level);
@@ -214,8 +223,9 @@
 
   function newGame() {
     cancelBot();
-    state = C.createGame();
+    state = newState();
     resigned = null;
+    $('ruleNote').hidden = true;
     confirmResign = false;
     players = playersFor();
     newClock();
@@ -260,6 +270,13 @@
   $('pause').addEventListener('click', () => {
     if (clock.paused) clock.resume(); else clock.pause();
     render();
+  });
+  $('rule').value = settings.rule;
+  $('rule').addEventListener('change', () => {
+    settings.rule = $('rule').value;
+    saveSettings();
+    if (!state.moves.length || result()) newGame();
+    else { $('ruleNote').hidden = false; render(); }
   });
   $('timeControl').value = settings.tc;
   $('timeControl').addEventListener('change', () => {

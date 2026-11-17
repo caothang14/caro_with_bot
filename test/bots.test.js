@@ -105,6 +105,23 @@ test('search beats greedy and greedy beats random (short match)', async () => {
   assert.strictEqual(greedyWins, 2);
 });
 
+test('free rule: a five blocked at both ends wins, so the bot plays it / blocks it', async () => {
+  const stones = [[2, 7, 'O'], [3, 7, 'X'], [4, 7, 'X'], [5, 7, 'X'], [6, 7, 'X'], [8, 7, 'O'], [10, 10, 'O'], [12, 2, 'O']];
+  const free = setup(stones, 'X');
+  free.rules = { ...free.rules, blockedBothEnds: false };
+  const r = await play('search:depth=2', free);
+  assert.deepStrictEqual(at(free, r.move), [7, 7], 'X completes O-XXXXX-O: a win under the free rule');
+  assert.strictEqual(C.makeMove(free, r.move).result.winner, 1);
+  // the same position under chặn 2 đầu: (7,7) does not win
+  const block2 = setup(stones, 'X');
+  assert.strictEqual(C.makeMove(block2, 7 * 15 + 7).result, null);
+  // O to move under the free rule must stop it at (7,7)
+  const def = setup(stones, 'O');
+  def.rules = { ...def.rules, blockedBothEnds: false };
+  const d = await play('search:depth=2', def);
+  assert.deepStrictEqual(at(def, d.move), [7, 7]);
+});
+
 test('difficulty levels 1..3 exist', () => {
   assert.deepStrictEqual(bots.levels().map((b) => b.id), ['level-1', 'level-2', 'level-3']);
 });

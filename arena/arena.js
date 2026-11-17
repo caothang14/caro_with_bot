@@ -34,6 +34,7 @@ function parseArgs(argv) {
     else if (k === '--games' || k === '-n') a.games = +next(); else if (k === '--seed') a.seed = +next();
     else if (k === '--movetime') a.movetime = +next(); else if (k === '--workers' || k === '-j') a.workers = +next();
     else if (k === '--opening') a.opening = +next(); else if (k === '--list') a.list = true;
+    else if (k === '--rule') a.rule = next();   // 'block2' (default, chặn 2 đầu) | 'free'
     else if (k === '--verbose' || k === '-v') a.verbose = true;
   }
   return a;
@@ -60,12 +61,13 @@ function erf(x) { const t = 1 / (1 + 0.3275911 * Math.abs(x)); const y = 1 - (((
   const t0 = Date.now();
   let w = 0, d = 0, l = 0, done = 0, next = 0, xWins = 0;
   const statA = { t: 0, m: 0, depth: 0 }, statB = { t: 0, m: 0, depth: 0 };
-  console.log(`A = ${args.a}\nB = ${args.b}\n${args.games} games, ${args.movetime} ms/move, ${args.workers} workers, seed ${args.seed}`);
+  console.log(`A = ${args.a}\nB = ${args.b}\n${args.games} games, ${args.movetime} ms/move, ${args.workers} workers, seed ${args.seed}, rule ${args.rule || 'block2'}`);
   await new Promise((resolve) => {
     const n = Math.min(args.workers, jobs.length);
     let finished = 0;
     for (let k = 0; k < n; k++) {
-      const worker = new Worker(__filename, { workerData: { moveTimeMs: args.movetime, openingMoves: args.opening } });
+      const rules = args.rule === 'free' ? { blockedBothEnds: false } : undefined;
+      const worker = new Worker(__filename, { workerData: { moveTimeMs: args.movetime, openingMoves: args.opening, rules } });
       const feed = () => { if (next < jobs.length) worker.postMessage(jobs[next++]); else { worker.postMessage('exit'); } };
       worker.on('message', (msg) => {
         const { job } = msg;

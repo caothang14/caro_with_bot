@@ -27,7 +27,8 @@ function randomStates(games, plies) {
   const out = [];
   for (let g = 0; g < games; g++) {
     const rnd = bots.seededRandom(100 + g);
-    let s = C.createGame({ rules: { size: g % 3 === 0 ? 15 : 21 } });
+    // every other game under the free rule (blockedBothEnds off)
+    let s = C.createGame({ rules: { size: g % 3 === 0 ? 15 : 21, blockedBothEnds: g % 2 === 0 } });
     const n = s.size;
     s = C.makeMove(s, ((n / 2) | 0) * n + ((n / 2) | 0));
     for (let i = 0; i < plies && !s.result; i++) {
@@ -40,7 +41,16 @@ function randomStates(games, plies) {
   }
   return out;
 }
-const STATES = randomStates(12, 60);
+const STATES = randomStates(16, 60);
+
+test('free rule: the shapes ignore blocked ends', () => {
+  const F = { ...R, blockedBothEnds: false };
+  const sh = (w) => PL.SHAPE_NAMES[PL.shapeOfString(w, F)];
+  assert.strictEqual(sh('OXXX_O___'), 'none', 'still only 4 stones – no five possible');
+  assert.strictEqual(sh('_OXX_XXO_'), 'five', 'blocked at both ends but wins under the free rule');
+  assert.strictEqual(sh('O_XX_X_O_'), 'open-four');
+  assert.strictEqual(sh('O_XX_____'), 'open-three');
+});
 
 function snapshot(pos) {
   return { board: pos.board.slice(), shapeX: pos.shape[0].slice(), shapeO: pos.shape[1].slice(), scoreX: pos.score[0].slice(),

@@ -1,4 +1,4 @@
-# Cờ Caro (Gomoku) – luật chặn 2 đầu
+# Cờ Caro (Gomoku) – luật chặn 2 đầu hoặc tự do
 
 A local caro (Gomoku) game with bots: plain HTML/CSS/JS, no build, no dependencies. Open `index.html` to play
 (works over `file://` too, and on GitHub Pages). The UI is in Vietnamese.
@@ -21,6 +21,8 @@ npm run bump          # new ?v= version tag in index.html – before every deplo
 - Full board without a winner = draw. No undo (same choice as the cotuong-up project).
 
 All three rule switches can be changed in `DEFAULT_RULES` / `createGame({ rules })`; the bots read them from the state.
+The UI offers two rules (select "Luật", saved in the settings, applies at "Ván mới"): **Chặn 2 đầu** (default) and
+**Tự do** (`blockedBothEnds: false`: any five or more wins, even blocked at both ends). Arena: `--rule free`.
 
 ## Game modes (`ui.js`)
 

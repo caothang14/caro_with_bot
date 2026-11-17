@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Cờ Caro – chặn 2 đầu</title>
+  <link rel="stylesheet" href="style.css?v=20261117-1039" />
+</head>
+<body>
+  <main class="app">
+    <section class="board-wrap">
+      <div id="status" class="status">Đang tải…</div>
+      <div id="clocks" class="clocks">
+        <div id="clockX" class="clock x"><span class="who">X</span><span class="time">--:--</span></div>
+        <div id="clockO" class="clock o"><span class="who">O</span><span class="time">--:--</span></div>
+      </div>
+      <div id="board" class="board" aria-label="Bàn cờ"></div>
+    </section>
+
+    <aside class="panel">
+      <h1>Cờ Caro</h1>
+      <p class="rules">Luật chặn 2 đầu: 5 quân liên tiếp (ngang, dọc, chéo) là thắng, trừ khi bị quân đối phương chặn cả hai đầu. Bàn <span id="sizeLabel">21×21</span>, X đi trước.</p>
+
+      <div class="tabs" role="tablist">
+        <button class="tab" data-mode="computer">Đấu với máy</button>
+        <button class="tab" data-mode="two">Hai người</button>
+      </div>
+
+      <div id="modeComputer" class="mode-body">
+        <label class="field">Bạn cầm
+          <select id="humanSide">
+            <option value="1">X (đi trước)</option>
+            <option value="2">O (đi sau)</option>
+            <option value="random">Ngẫu nhiên</option>
+          </select>
+        </label>
+        <label class="field">Mức độ
+          <select id="level"></select>
+        </label>
+        <p id="levelDesc" class="note"></p>
+        <p id="modeNote" class="note" hidden>Thay đổi sẽ áp dụng khi bấm "Ván mới".</p>
+      </div>
+
+      <label class="field">Thời gian
+        <select id="timeControl">
+          <option value="0+0">Không tính giờ</option>
+          <option value="3+2">3 phút + 2 giây/nước</option>
+          <option value="5+3">5 phút + 3 giây/nước</option>
+          <option value="10+0">10 phút</option>
+          <option value="10+5">10 phút + 5 giây/nước</option>
+          <option value="15+10">15 phút + 10 giây/nước</option>
+        </select>
+      </label>
+      <p id="tcNote" class="note" hidden>Thời gian mới sẽ áp dụng khi bấm "Ván mới".</p>
+
+      <div class="buttons">
+        <button id="newGame">Ván mới</button>
+        <button id="pause" class="secondary">Tạm dừng</button>
+        <button id="resign" class="danger">Chịu thua</button>
+      </div>
+      <div id="confirmBar" class="confirm" hidden>
+        <p>Bạn chắc chắn muốn chịu thua?</p>
+        <div class="buttons">
+          <button id="confirmYes" class="danger">Chịu thua</button>
+          <button id="confirmNo" class="secondary">Chơi tiếp</button>
+        </div>
+      </div>
+
+      <p class="info">Số nước: <span id="moveCount">0</span><span id="lastMove"></span></p>
+      <p class="info small">Cập nhật: <span id="version"></span></p>
+    </aside>
+  </main>
+
+  <!-- ?v=: version tag of the files, changed on every update (npm run bump) so browsers never mix cached old files with new ones -->
+  <script src="clock.js?v=20261117-1039"></script>
+  <script src="engine.js?v=20261117-1039"></script>
+  <script src="bots/registry.js?v=20261117-1039"></script>
+  <script src="bots/manifest.js?v=20261117-1039"></script>
+  <script src="bots/worker.js?v=20261117-1039"></script>
+  <!-- ui.js loads the bots listed in bots/manifest.js itself (with the same ?v=) -->
+  <script src="ui.js?v=20261117-1039"></script>
+</body>
+</html>

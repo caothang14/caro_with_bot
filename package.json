@@ -1,0 +1,13 @@
+{
+  "name": "caro",
+  "version": "0.1.0",
+  "description": "Cờ caro (Gomoku, luật chặn 2 đầu) – local board, bots, bot arena",
+  "scripts": {
+    "test": "node test/engine.test.js && node test/position.test.js && node test/bots.test.js",
+    "arena": "node arena/arena.js",
+    "bots": "node arena/arena.js --list",
+    "bench": "node arena/bench.js",
+    "bump": "node scripts/bump-version.js"
+  },
+  "license": "MIT"
+}
